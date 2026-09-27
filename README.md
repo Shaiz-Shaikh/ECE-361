@@ -1,2 +1,3 @@
 # ECE-361
-Assignments and projects for the course ECE 361. @PSU
+Course taught at Portland State University \
+Assignments and projects for the course.
