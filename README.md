@@ -1,3 +1,4 @@
 # ECE-361
-Course taught at Portland State University \
+**Portland State University.** \
+Professor: Dr. Christof Teuscher. \
 Assignments and projects for the course.
