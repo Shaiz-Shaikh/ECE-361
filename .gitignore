@@ -1,0 +1,6 @@
+# build products
+*.o
+hw02/readings
+hw02/tests/test_stats
+project/weather
+.DS_Store
