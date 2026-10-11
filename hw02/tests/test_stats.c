@@ -22,6 +22,7 @@ int main(void)
     int failed = 0;
     int start;
     int run;
+    int agree;
     float one[1]   = {7.5f};
     float first[3] = {9.0f, 3.0f, 5.0f};
     float last[3]  = {3.0f, 5.0f, 9.0f};
@@ -60,6 +61,19 @@ int main(void)
     /* extra: min and mean */
     CHECK("min of 1 2 3 4", stats_min(four, 4), 1.0f);
     CHECK("mean of 1 2 3 4", stats_mean(four, 4), 2.5f);
+
+    /* bonus: stats_max_tail gives the same answer as stats_max */
+    CHECK("tail: one value", stats_max_tail(one, 1), 7.5f);
+    CHECK("tail: max at the start", stats_max_tail(first, 3), 9.0f);
+    CHECK("tail: max at the end", stats_max_tail(last, 3), 9.0f);
+    CHECK("tail: 10000 values, max in the middle",
+          stats_max_tail(big, BIG), 50000.0f);
+    agree = 1;
+    for (int n = 1; n <= BIG; n++) {
+        if (stats_max_tail(big, n) != stats_max(big, n))
+            agree = 0;
+    }
+    CHECK("tail agrees with stats_max for every length 1 to 10000", agree, 1);
 
     printf("\nSummary: %d passed, %d failed\n", passed, failed);
     return failed != 0 ? 1 : 0;

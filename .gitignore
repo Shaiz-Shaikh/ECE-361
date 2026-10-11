@@ -4,3 +4,5 @@ hw02/readings
 hw02/tests/test_stats
 project/weather
 .DS_Store
+hw02/tests/depth_O0
+hw02/tests/depth_O2

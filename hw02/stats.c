@@ -50,3 +50,18 @@ int stats_longest_run_above(const float a[], int n, float threshold, int *start)
     *start = best_start;
     return best;
 }
+
+/* helper for stats_max_tail: best is the largest value seen so far */
+static float max_tail_helper(const float a[], int n, float best)
+{
+    if (n == 0)
+        return best;
+    if (a[0] > best)
+        best = a[0];
+    return max_tail_helper(a + 1, n - 1, best);
+}
+
+float stats_max_tail(const float a[], int n)
+{
+    return max_tail_helper(a + 1, n - 1, a[0]);
+}

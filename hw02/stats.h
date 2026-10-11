@@ -18,6 +18,16 @@ float stats_min(const float a[], int n);
 float stats_max(const float a[], int n);
 
 /*
+ * stats_max_tail: largest value in an array, computed with a tail-recursive
+ * helper that carries the best value so far as a parameter, so that the
+ * recursive call is the last thing the helper does.
+ * Takes:   a  the array, n  its length
+ * Returns: the largest of a[0] to a[n-1], the same answer as stats_max
+ * Assumes: n >= 1
+ */
+float stats_max_tail(const float a[], int n);
+
+/*
  * stats_mean: average of an array.
  * Takes:   a  the array, n  its length
  * Returns: the sum of a[0] to a[n-1] divided by n

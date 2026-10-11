@@ -19,3 +19,7 @@ When Claude gave me the command to create `README.md`, the module diagram was su
 
 - `make test` builds from a clean state with no warnings and all tests pass.
 - The regression test shows my output is identical to `expected/`.
+
+## Bonus problem
+
+I also used Claude for the optional bonus: it helped me write `stats_max_tail`, `tests/depth.c`, and a first draft of `BONUS.md`, and explained how the stack and tail calls work. I ran every measurement myself on my own MacBook Air (Apple M1) and used its numbers, not any numbers from the AI. I read the explanations in `BONUS.md` until I could say them in my own words.
