@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "iom361_r4.h"
+#include "sensor.h"
 
 int main(void)
 {
@@ -11,6 +12,18 @@ int main(void)
         return 1;
     }
 
+    _iom361_set_sensor1(28.5f, 60.0f);   /* a typical warm backyard day */
+
+    float temp_c;
+    float rh_pct;
+    rc = sensor_read(base, &temp_c, &rh_pct);
+    if (rc != 0) {
+        fprintf(stderr, "sensor_read failed: %d\n", rc);
+        return 1;
+    }
+
     printf("Weather station\n");
+    printf("Temperature: %.1f C\n", temp_c);
+    printf("Humidity: %.1f %%RH\n", rh_pct);
     return 0;
 }

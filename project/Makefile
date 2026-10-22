@@ -5,12 +5,12 @@ OBJS = main.o sensor.o fsm.o store.o aux.o report.o iom361_r4.o
 all: weather
 
 weather: $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o weather
+	$(CC) $(CFLAGS) $(OBJS) -o weather -lm
 
-main.o: main.c iom361_r4.h
+main.o: main.c iom361_r4.h sensor.h
 	$(CC) $(CFLAGS) -c main.c -o main.o
 
-sensor.o: sensor.c sensor.h
+sensor.o: sensor.c sensor.h iom361_r4.h
 	$(CC) $(CFLAGS) -c sensor.c -o sensor.o
 
 fsm.o: fsm.c fsm.h
