@@ -1,0 +1,11 @@
+# door and alarm events for one morning
+DOOR_OPEN
+DOOR_CLOSE
+DOOR_OPEN
+
+ALARM
+DOOR_OPEN
+# the next name is longer than 15 characters
+WINDOW_BROKEN_IN_THE_KITCHEN
+ALARM
+DOOR_CLOSE
