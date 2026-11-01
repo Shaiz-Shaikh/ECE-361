@@ -2,12 +2,21 @@
 #define SENSOR_H
 
 #include <stdint.h>
+#include <time.h>
 
 /*
  * sensor: reads the temperature and humidity registers of iom361, converts
  * the raw 20-bit values to degrees C and %RH, and rounds them to 0.1.
- * Will define reading_t (timestamp, temperature, humidity).
  */
+
+/* reading_t
+ * One measurement: when it was taken (seconds since 1 Jan 1970, UTC),
+ * the temperature in degrees C, and the relative humidity in %RH. */
+typedef struct {
+    time_t timestamp;
+    float  temp_c;
+    float  rh_pct;
+} reading_t;
 
 /* sensor_read
  * Takes:   base, the register block returned by iom361_initialize;
