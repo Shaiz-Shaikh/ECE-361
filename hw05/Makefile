@@ -19,7 +19,19 @@ test_lock: tests/test_lock.o lock.o
 tests/test_lock.o: tests/test_lock.c lock.h
 	$(CC) $(CFLAGS) -I. -c tests/test_lock.c -o tests/test_lock.o
 
-clean:
-	rm -f lock test_lock *.o tests/*.o
+bonus: test_check
+	./test_check
 
-.PHONY: test clean
+test_check: tests/test_check.o check.o lock.o
+	$(CC) $(CFLAGS) -o test_check tests/test_check.o check.o lock.o
+
+check.o: check.c check.h lock.h
+	$(CC) $(CFLAGS) -c check.c
+
+tests/test_check.o: tests/test_check.c check.h lock.h
+	$(CC) $(CFLAGS) -I. -c tests/test_check.c -o tests/test_check.o
+
+clean:
+	rm -f lock test_lock test_check *.o tests/*.o
+
+.PHONY: test bonus clean

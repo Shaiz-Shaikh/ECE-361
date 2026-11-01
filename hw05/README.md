@@ -56,3 +56,11 @@ Each box is `next state / action`.
 - `data/codes.txt`: sample input.
 - `tests/test_lock.c`: tests for all 16 table entries, `lock_event`, and the
   sequences 3 1 4, 3 3 1 4, 3 1 t 4, and 3 1 4 c.
+
+## Bonus: table checker
+
+`check.h` and `check.c` have `fsm_check`, which finds left-out entries,
+out-of-range next states, unreachable states (breadth-first search), and
+states with no way out. `make bonus` runs `tests/test_check.c`: the real
+table must give 0 problems, and three broken copies must be caught. The
+output and the reasons are in `BONUS.md`.

@@ -25,3 +25,9 @@ a file should have 43 lines when it had 42, and it also guessed 80 lines for
 the test file, which had 84. The code itself compiled and the tests passed,
 so it did not break anything, but I learned not to trust a guessed number
 without checking it myself.
+
+**Bonus part:** I used Claude the same way for the table checker. It wrote
+check.c and test_check.c and explained the breadth-first search with the
+queue, and I typed it in, compiled it, and ran it. I read the checker's
+output on the three broken copies and checked it matched what I expected
+(for example, that leaving out GOT2 + RIGHT makes OPEN unreachable).
