@@ -1,0 +1,9 @@
+# Presses toggle LEDs. A held switch toggles only once; a release does nothing.
+start 1791273600        # 2026-10-06 08:00:00 UTC
+# tick  temp  rh  switches
+0       21.5  40  0x0
+2       21.5  40  0x1   # press switch 0: LED 0 on
+4       21.5  40  0x0   # release it: LED 0 stays on
+6       22.0  45  0x3   # press switches 0 and 1: LED 0 off, LED 1 on
+8       22.0  45  0x2   # release switch 0
+10      22.0  45  0x0   # release switch 1
