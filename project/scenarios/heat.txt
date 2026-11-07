@@ -1,0 +1,13 @@
+# Heat rises to SEVERE with ACK presses, then a long cool-down.
+start 1791273600        # 2026-10-06 08:00:00 UTC
+# tick  temp  rh  switches
+0       25.0  50  0x0
+5       31.0  60  0x0   # WATCH
+10      36.0  60  0x0   # WARNING, buzzer on
+15      36.0  60  0x1   # ACK pressed: buzzer off
+16      36.0  60  0x0
+20      41.0  60  0x0   # SEVERE, buzzer on
+25      41.0  60  0x1   # ACK pressed: buzzer off
+26      41.0  60  0x0
+30      25.0  50  0x0   # cool: 30 readings in a row lower one level
+120     25.0  50  0x0

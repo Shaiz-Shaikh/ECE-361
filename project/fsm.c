@@ -92,3 +92,71 @@ const char *fsm_action_name(fsm_action_t a)
         return "?";
     return action_names[a];
 }
+
+#include "bits.h"
+
+void fsm_init(fsm_t *f)
+{
+    f->state = CALM;
+    f->below = 0;
+    f->buzzer = 0;
+}
+
+/* Takes one event through the table and carries out its action. */
+static void apply(fsm_t *f, fsm_event_t e)
+{
+    fsm_action_t action;
+
+    f->state = fsm_step(f->state, e, &action);
+    if (action == A_BUZZER_ON)
+        f->buzzer = 1;
+    else if (action == A_BUZZER_OFF)
+        f->buzzer = 0;
+}
+
+void fsm_tick(fsm_t *f, float temp_c, float rh_pct, int ack_pressed)
+{
+    int level = fsm_level(temp_c, rh_pct);
+    fsm_event_t e;
+
+    if (ack_pressed)                    /* ACK first, see fsm.h */
+        apply(f, E_ACK);
+
+    if (level < (int)f->state) {        /* the reading is below this level */
+        f->below++;
+        if (f->below >= FSM_HOLD) {
+            e = E_LOWER;
+            f->below = 0;               /* each level needs its own count */
+        } else {
+            e = (fsm_event_t)level;     /* E_L0..E_L3 are numbered 0..3 */
+        }
+    } else {                            /* at or above: the count starts over */
+        f->below = 0;
+        e = (fsm_event_t)level;
+    }
+    apply(f, e);
+}
+
+uint32_t fsm_leds(const fsm_t *f)
+{
+    uint32_t leds = 0;
+
+    if (f->state == WATCH)
+        leds |= 0x1;
+    if (f->state == WARNING)
+        leds |= 0x2;
+    if (f->state == SEVERE)
+        leds |= 0x4;
+    if (f->buzzer)
+        leds |= 0x8;
+    return leds;
+}
+
+uint32_t fsm_status(const fsm_t *f)
+{
+    uint32_t word = 0;
+
+    word = set_field(word, 0, 2, (uint32_t)f->state);
+    word = set_field(word, 2, 4, fsm_leds(f));
+    return word;
+}
