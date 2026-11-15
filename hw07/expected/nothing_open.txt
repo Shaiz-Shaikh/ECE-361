@@ -1,0 +1,2 @@
+line 2, column 5: found ')', nothing open
+exit status: 1
