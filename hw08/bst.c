@@ -76,7 +76,8 @@ int bst_insert(bst_t *t, int key)
 
 /* bst_contains: ported from the original search(). The global root is
  * now t->root, the printing is gone (visits counts instead), and it
- * returns true or false. The loop is kept as it was. */
+ * returns true or false. Fixed: the original read current->data before
+ * checking for NULL, so it crashed on an empty tree. */
 bool bst_contains(bst_t *t, int key, size_t *visits)
 {
     struct node *current;
@@ -87,10 +88,11 @@ bool bst_contains(bst_t *t, int key, size_t *visits)
     if (t == NULL)
         return false;
     current = t->root;
+    if (current == NULL)                    /* the fix: an empty tree */
+        return false;
 
     while (current->data != key) {
-        if (current != NULL)
-            count++;                        /* was: printf("%d ", current->data) */
+        count++;                            /* was: printf("%d ", current->data) */
 
         /* data at current node > key we are looking for,
          * so go to the left tree */
