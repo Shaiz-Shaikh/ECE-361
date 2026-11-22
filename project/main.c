@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <time.h>
+#include "aux.h"
 #include "fsm.h"
 #include "iom361_r4.h"
 #include "panel.h"
@@ -55,11 +56,13 @@ int main(int argc, char *argv[])
     uint32_t *base;
     uint32_t before = 0;            /* the switches at the previous tick */
     store_t *store;
+    aux_t *buf;
     fsm_t f;
     int rc = 0;
     int status;
     int tick;
     int last;
+    int exit_code = 0;              /* what main returns */
 
     if (argc != 2) {
         fprintf(stderr, "usage: %s scenario.txt\n", argv[0]);
@@ -87,6 +90,12 @@ int main(int argc, char *argv[])
         fprintf(stderr, "cannot create the store\n");
         return 1;
     }
+    buf = aux_create();
+    if (buf == NULL) {
+        fprintf(stderr, "cannot create the buffer\n");
+        store_destroy(store);
+        return 1;
+    }
     fsm_init(&f);
 
     last = scenario_last_tick(&sc);
@@ -106,13 +115,15 @@ int main(int argc, char *argv[])
         rc = sensor_read(base, sc.start + tick, &r);
         if (rc != 0) {
             fprintf(stderr, "tick %d: sensor_read failed (code %d)\n", tick, rc);
-            return 1;
+            exit_code = 1;
+            break;
         }
         sw = iom361_readReg(base, SWITCHES_REG, &rc);
         if (rc != 0) {
             fprintf(stderr, "tick %d: reading the switches failed (code %d)\n",
                     tick, rc);
-            return 1;
+            exit_code = 1;
+            break;
         }
 
         ack = (panel_pressed(sw, before) & ACK_SWITCH) != 0;
@@ -123,22 +134,26 @@ int main(int argc, char *argv[])
         if (rc != 0) {
             fprintf(stderr, "tick %d: writing the outputs failed (code %d)\n",
                     tick, rc);
-            return 1;
+            exit_code = 1;
+            break;
         }
 
         rec.reading = r;
         rec.state = (int)f.state;
         rec.status = fsm_status(&f);
+        aux_add(buf, &r);               /* the last AUX_N readings */
         store_insert(store, &rec);      /* a full store just stops filling */
 
         leds = iom361_readReg(base, LEDS_REG, &rc);
         if (rc != 0) {
             fprintf(stderr, "tick %d: reading the LEDs failed (code %d)\n",
                     tick, rc);
-            return 1;
+            exit_code = 1;
+            break;
         }
         print_tick(&r, &f, leds);
     }
+    aux_destroy(buf);
     store_destroy(store);
-    return 0;
+    return exit_code;
 }

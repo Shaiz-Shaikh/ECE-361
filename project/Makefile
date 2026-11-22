@@ -7,7 +7,7 @@ all: weather
 weather: $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o weather -lm
 
-main.o: main.c fsm.h iom361_r4.h panel.h scenario.h sensor.h store.h
+main.o: main.c aux.h fsm.h iom361_r4.h panel.h scenario.h sensor.h store.h
 	$(CC) $(CFLAGS) -c main.c -o main.o
 
 sensor.o: sensor.c sensor.h iom361_r4.h
@@ -28,7 +28,7 @@ fsm.o: fsm.c fsm.h bits.h
 store.o: store.c store.h sensor.h
 	$(CC) $(CFLAGS) -c store.c -o store.o
 
-aux.o: aux.c aux.h
+aux.o: aux.c aux.h sensor.h
 	$(CC) $(CFLAGS) -c aux.c -o aux.o
 
 report.o: report.c report.h
