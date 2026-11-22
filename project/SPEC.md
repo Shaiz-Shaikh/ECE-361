@@ -144,6 +144,38 @@ increasing keys gives a height of 100). But there are only as many different
 keys as 0.5 C steps the sensor can report, so that chain cannot keep growing
 with the length of the run.
 
+## The circular buffer (S3)
+
+The buffer is a struct in `aux.c`. It holds a fixed array of `AUX_N` = 30
+readings and two numbers, `head` and `count`. It is made with one `malloc`
+(about 500 bytes) and never grows.
+
+- `head` is the slot where the **next** reading will be written. It starts at 0.
+  It is not the newest reading.
+- `count` is how many readings the buffer holds. It goes up to `AUX_N` and then
+  stays there.
+
+**Newest and oldest.** I do not keep a variable for either one. Both come from
+`head` and `count`, so they cannot disagree with each other.
+
+- The newest is the slot just before `head`: `(head + AUX_N - 1) % AUX_N`.
+- `aux_get(a, i, &out)` counts back from the newest: `i = 0` is the newest and
+  `i = count - 1` is the oldest. The slot is `(head + AUX_N - 1 - i) % AUX_N`.
+  I add `AUX_N` first because `head` is unsigned, and `head - 1 - i` would wrap
+  around to a huge number when it goes below zero.
+- Until the buffer is full the oldest is slot 0. When it is full the oldest is
+  the slot at `head`, which is the next one to be overwritten.
+
+**Adding.** `aux_add` copies the reading into `data[head]`, moves `head` to
+`(head + 1) % AUX_N`, and adds 1 to `count` only while `count` is below
+`AUX_N`. When the buffer is full this overwrites the oldest reading. Nothing is
+shifted, so every add costs the same.
+
+**Example.** After 32 adds with `AUX_N` = 30, readings 3 to 32 are in the
+buffer. Reading 32 is in slot 1, `head` is 2, and `count` is 30. The newest is
+slot 1 (`i = 0`) and the oldest is slot 2 (`i = 29`), which holds reading 3.
+Readings 1 and 2 were overwritten.
+
 ## Status word
 
 One `uint32_t`, packed with `set_field` and read with `get_field` (HW1).
@@ -186,8 +218,6 @@ older ones. Anything that sorts or compares by time would break. The fix is a
 
 ## Still to write
 
-- How the circular buffer keeps track of the oldest and the newest entry
-  (when `aux.c` is written).
 - The exact definition of the report (when `report.c` is written): the 5
   highest temperatures with tick and humidity, ties broken by the higher
   humidity, then by the earlier tick.
