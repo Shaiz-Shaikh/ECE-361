@@ -112,10 +112,37 @@ moment (an int), and the status word (a `uint32_t`).
 steps of 0.5 C, rounded down. 21.2 C and 21.4 C both give 42. `record_compare`
 compares only the keys, so two records with the same key compare as equal.
 
-**Duplicates (sorted array, for now).** Every record is kept. A record whose
-key already exists goes after the ones with that key, so equal keys stay in
-arrival order. `store_find` returns the earliest record with that key. What
-the tree does with duplicates will be decided in week 8 and written here.
+**Duplicates (a list in each tree node).** The store is a binary search tree.
+Each different key is one node, and the node keeps a list of every record with
+that key, in the order they arrived. A new record whose key is already in the
+tree goes at the end of that node's list (the node keeps a pointer to its last
+record, so this takes one step). `store_find` returns the first record of the
+list, which is the earliest. The in-order walk gives the keys from low to high,
+and the records of one key in arrival order. Nothing is ever thrown away.
+
+**Why a list.** Duplicates are common here: the station reads once a second and
+the temperature changes slowly, so it stays in one 0.5 C step for a long time.
+The heat scenario has 121 readings but only 4 different keys. The sheet gives
+three choices, and I picked the list for these reasons:
+
+- A count in each node keeps the tree small, but it throws the records away.
+  The report needs the tick and the humidity of each record, so a count is not
+  enough.
+- A tie-break on the timestamp keeps every record, but every reading becomes
+  its own node. Equal readings then make a chain: 100 equal readings give a
+  height of 100. My sorted array gave 100 for the same test, and a tie-break
+  tree would too.
+- A list in each node keeps every record and keeps the tree short. My test with
+  100 equal readings gives a height of 1.
+
+The cost is two kinds of node, and two `malloc` calls for a new key (the node
+and its first record). A duplicate costs one. Finding a key takes at most the
+height, and the height counts different keys, not readings. The list does not
+fix everything: if the temperature keeps rising, new keys come in increasing
+order and the tree is still a chain of different keys (my test with 100
+increasing keys gives a height of 100). But there are only as many different
+keys as 0.5 C steps the sensor can report, so that chain cannot keep growing
+with the length of the run.
 
 ## Status word
 
@@ -164,7 +191,6 @@ older ones. Anything that sorts or compares by time would break. The fix is a
 - The exact definition of the report (when `report.c` is written): the 5
   highest temperatures with tick and humidity, ties broken by the higher
   humidity, then by the earlier tick.
-- What the tree does with duplicate keys (week 8).
 - One paragraph that defends or criticizes the four given states.
 - One paragraph that compares my circular buffer with one alternative from the
   reading, with the cost of each operation.
