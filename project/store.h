@@ -6,12 +6,10 @@
 
 /*
  * store: the record of everything the station has measured, ordered by
- * temperature in 0.5 C steps (key K2). First a sorted array, later a binary
- * search tree; callers only use this header.
+ * temperature in 0.5 C steps (key K2). A binary search tree with one node per
+ * distinct key; the node holds every record with that key, in arrival order,
+ * so many equal readings do not make it taller. Callers only use this header.
  */
-
-#define STORE_POOL 2       /* stores that can exist at the same time */
-#define STORE_MAX  2048    /* records one store can hold (array version) */
 
 /* record_t: the reading, the state at that moment (for now a plain int,
    the fsm state), and the status word (state, lamps and buzzer packed). */
@@ -38,11 +36,11 @@ int record_key(const record_t *r);
 int record_compare(const record_t *a, const record_t *b);
 
 /* store_create
- * Returns: a new, empty store; NULL if STORE_POOL stores are already in use. */
+ * Returns: a new, empty store; NULL if memory ran out. */
 store_t *store_create(void);
 
 /* store_destroy
- * Takes:   a store from store_create. Gives it back to the pool.
+ * Takes:   a store from store_create. Frees the store and every record in it.
  *          NULL does nothing. */
 void store_destroy(store_t *s);
 
@@ -50,8 +48,8 @@ void store_destroy(store_t *s);
  * Takes:   a store and a record. The record is copied.
  * Does:    keeps the store in key order. A record whose key already exists
  *          goes after the ones with that key (arrival order); none is lost.
- * Returns: 0 on success; -1 and changes nothing if s or r is NULL or the
- *          store is full. */
+ * Returns: 0 on success; -1 and changes nothing if s or r is NULL or
+ *          memory ran out. */
 int store_insert(store_t *s, const record_t *r);
 
 /* store_find
@@ -74,9 +72,9 @@ void store_walk(const store_t *s,
 int store_count(const store_t *s);
 
 /* store_height
- * Returns: the height of the store as a tree. The sorted array is a tree
- *          with no branches, so for now this equals store_count; the real
- *          tree (week 8) will return its true height. 0 for NULL or empty. */
+ * Returns: the height of the tree: the number of keys on the longest path
+ *          from the root down. Records with the same key share one node, so
+ *          they do not add height. 0 for NULL or empty. */
 int store_height(const store_t *s);
 
 #endif

@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
         rec.state = (int)f.state;
         rec.status = fsm_status(&f);
         aux_add(buf, &r);               /* the last AUX_N readings */
-        store_insert(store, &rec);      /* a full store just stops filling */
+        store_insert(store, &rec);      /* fails only if malloc fails */
 
         leds = iom361_readReg(base, LEDS_REG, &rc);
         if (rc != 0) {

@@ -43,8 +43,15 @@ tests/test_aux.o: tests/test_aux.c aux.h sensor.h
 tests/test_aux: tests/test_aux.o aux.o
 	$(CC) $(CFLAGS) tests/test_aux.o aux.o -o tests/test_aux
 
-test: tests/test_aux
+tests/test_store.o: tests/test_store.c store.h sensor.h
+	$(CC) $(CFLAGS) -I. -c tests/test_store.c -o tests/test_store.o
+
+tests/test_store: tests/test_store.o store.o
+	$(CC) $(CFLAGS) tests/test_store.o store.o -o tests/test_store -lm
+
+test: tests/test_aux tests/test_store
 	./tests/test_aux
+	./tests/test_store
 
 memcheck:
 	$(MAKE) clean
@@ -52,6 +59,6 @@ memcheck:
 	$(MAKE) clean
 
 clean:
-	rm -f $(OBJS) weather tests/*.o tests/test_aux
+	rm -f $(OBJS) weather tests/*.o tests/test_aux tests/test_store
 
 .PHONY: all clean test memcheck
