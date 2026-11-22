@@ -37,7 +37,21 @@ report.o: report.c report.h
 iom361_r4.o: iom361_r4.c iom361_r4.h
 	$(CC) $(CFLAGS) -c iom361_r4.c -o iom361_r4.o
 
-clean:
-	rm -f $(OBJS) weather
+tests/test_aux.o: tests/test_aux.c aux.h sensor.h
+	$(CC) $(CFLAGS) -c tests/test_aux.c -o tests/test_aux.o
 
-.PHONY: all clean
+tests/test_aux: tests/test_aux.o aux.o
+	$(CC) $(CFLAGS) tests/test_aux.o aux.o -o tests/test_aux
+
+test: tests/test_aux
+	./tests/test_aux
+
+memcheck:
+	$(MAKE) clean
+	$(MAKE) test CFLAGS="-std=c11 -Wall -Wextra -g -fsanitize=address,undefined -fno-omit-frame-pointer"
+	$(MAKE) clean
+
+clean:
+	rm -f $(OBJS) weather tests/*.o tests/test_aux
+
+.PHONY: all clean test memcheck
